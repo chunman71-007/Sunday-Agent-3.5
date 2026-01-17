@@ -1,41 +1,42 @@
 name: Generate Sunday Sticker
 
 on:
-workflow_dispatch:
-inputs:
-style:
-description: '貼紙樣式 (e.g. birthday, christmas)'
-required: true
-default: 'new_year'
-type: string
-text:
-description: '貼紙文字 (e.g. Happy Purr-thday!)'
-required: false
-default: 'Happy Meow Year'
-type: string
+  workflow_dispatch:
+    inputs:
+      style:
+        description: '貼紙樣式 (e.g. birthday, christmas)'
+        required: true
+        default: 'new_year'
+        type: string
+      text:
+        description: '貼紙文字 (e.g. Happy Purr-thday!)'
+        required: false
+        default: 'Happy Meow Year'
+        type: string
 
 jobs:
-generate:
-runs-on: ubuntu-latest
-steps:
-- name: 拉取最新程式碼
-uses: actions/checkout@v4
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取最新程式碼
+        uses: actions/checkout@v4
 
-- name: 設定 Python 環境
-uses: actions/setup-python@v5
-with:
-python-version: '3.11'
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-- name: 安裝依賴（如果將來有 requirements.txt 就用）
-run: |
-pip install -r requirements.txt || echo "無 requirements.txt，跳過"
+      - name: 安裝依賴（如果將來有 requirements.txt 就用）
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || echo "無 requirements.txt，跳過"
 
-- name: 執行貼紙生成器（安全傳參數）
-env:
-STYLE_INPUT: ${{ github.event.inputs.style }}
-TEXT_INPUT: ${{ github.event.inputs.text }}
-run: |
-echo "=== Debug: Inputs from workflow_dispatch ==="
-echo "Style: $STYLE_INPUT"
-echo "Text : $TEXT_INPUT"
-python src/generate_sticker.py "$STYLE_INPUT" "$TEXT_INPUT"
+      - name: 執行貼紙生成器（安全傳參數）
+        env:
+          STYLE_INPUT: ${{ github.event.inputs.style }}
+          TEXT_INPUT: ${{ github.event.inputs.text }}
+        run: |
+          echo "=== Debug: Inputs from workflow_dispatch ==="
+          echo "Style: $STYLE_INPUT"
+          echo "Text : $TEXT_INPUT"
+          python src/generate_sticker.py "$STYLE_INPUT" "$TEXT_INPUT"
