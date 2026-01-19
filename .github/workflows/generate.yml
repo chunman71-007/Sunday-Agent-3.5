@@ -13,6 +13,11 @@ on:
         required: false
         default: 'Happy Meow Year'
         type: string
+      font_name:
+        description: '字型名稱（不含副檔名，例如 starborn）'
+        required: false
+        default: 'default'
+        type: string
 
 jobs:
   generate:
@@ -26,29 +31,33 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 安裝依賴（如果將來有 requirements.txt 就用）
+      - name: 安裝依賴（包括 Pillow）
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt || echo "無 requirements.txt，跳過"
 
-      - name: 執行貼紙生成器（安全傳參數 + 詳細 Debug）
+      - name: 執行貼紙生成器（傳入 style、text、font_name）
         run: |
-          echo "=== Debug: 直接從 inputs 上下文獲取的值 ==="
-          echo "inputs.style (raw): '${{ inputs.style }}'"
-          echo "inputs.text  (raw): '${{ inputs.text }}'"
-          echo "fallback style if empty: '${{ inputs.style || 'new_year' }}'"
-          echo "fallback text if empty : '${{ inputs.text || 'Happy Meow Year' }}'"
-          echo "=== 執行 Python 腳本（使用 fallback 防空值） ==="
+          echo "=== Debug: inputs ==="
+          echo "style     : '${{ inputs.style }}'"
+          echo "text      : '${{ inputs.text }}'"
+          echo "font_name : '${{ inputs.font_name }}'"
+          echo "=== 執行 Python 腳本 ==="
           python src/generate_sticker.py \
             "${{ inputs.style || 'new_year' }}" \
-            "${{ inputs.text || 'Happy Meow Year' }}"
+            "${{ inputs.text || 'Happy Meow Year' }}" \
+            "${{ inputs.font_name || 'default' }}"
 
       - name: Commit and push generated sticker
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions@github.com'
           git add assets/generated/*
-          git commit -m "Auto-generate sticker: ${{ inputs.style || 'new_year' }}_sticker_${{ github.run_id }}" || echo "No changes to commit"
+          git commit -m "Auto-generate sticker: ${{ inputs.style || 'new_year' }}_${{ inputs.font_name || 'default' }}_${{ github.run_id }}" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
