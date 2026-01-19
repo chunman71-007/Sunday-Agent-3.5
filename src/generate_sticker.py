@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 
@@ -33,6 +34,34 @@ def create_sticker(style="new_year", text="Happy Meow Year", font_name="default"
         img = Image.new("RGBA", (width, height), (255, 255, 255, 255))
     elif background == "black":
         img = Image.new("RGBA", (width, height), (0, 0, 0, 255))
+    elif background == "forest":
+        img = Image.new("RGBA", (width, height), (34, 139, 34, 255))  # 深綠底
+        draw = ImageDraw.Draw(img)
+        # 加漸層效果
+        for y in range(height):
+            shade = int(34 + (y / height) * 100)
+            draw.line([(0, y), (width, y)], fill=(shade, 139, shade, 255))
+    elif background == "starry":
+        img = Image.new("RGBA", (width, height), (10, 10, 40, 255))  # 深藍底
+        draw = ImageDraw.Draw(img)
+        # 加隨機星星
+        for _ in range(200):
+            x, y = random.randint(0, width), random.randint(0, height)
+            draw.ellipse((x, y, x+2, y+2), fill=(255, 255, 255, 255))
+    elif background == "watercolor":
+        img = Image.new("RGBA", (width, height), (173, 216, 230, 255))  # 淺藍底
+        draw = ImageDraw.Draw(img)
+        # 加柔和漸層
+        for y in range(height):
+            shade = int(173 + (y / height) * 50)
+            draw.line([(0, y), (width, y)], fill=(shade, 200, 230, 255))
+    elif background == "smoke":
+        img = Image.new("RGBA", (width, height), (200, 200, 200, 255))  # 灰白底
+        draw = ImageDraw.Draw(img)
+        # 加煙霧漸層
+        for y in range(height):
+            shade = int(200 - (y / height) * 100)
+            draw.line([(0, y), (width, y)], fill=(shade, shade, shade, 255))
     else:
         print(f"⚠️ 未知背景選項 '{background}'，改用透明背景")
         img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
