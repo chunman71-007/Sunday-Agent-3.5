@@ -2,7 +2,7 @@ import os
 import sys
 import random
 from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageColor
 
 def split_text(text, max_chars_per_line=10):
     words = text.split()
@@ -18,7 +18,7 @@ def split_text(text, max_chars_per_line=10):
         lines.append(current_line)
     return lines
 
-def create_sticker(style="new_year", text="Happy Meow Year", font_name="default", background="transparent", output_dir="assets/generated"):
+def create_sticker(style="new_year", text="Happy Meow Year", font_name="default", background="transparent", text_color="#000000", output_dir="assets/generated"):
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     safe_style = "".join(c if c.isalnum() or c in ['-', '_'] else '_' for c in style.lower())
@@ -35,30 +35,26 @@ def create_sticker(style="new_year", text="Happy Meow Year", font_name="default"
     elif background == "black":
         img = Image.new("RGBA", (width, height), (0, 0, 0, 255))
     elif background == "forest":
-        img = Image.new("RGBA", (width, height), (34, 139, 34, 255))  # 深綠底
+        img = Image.new("RGBA", (width, height), (34, 139, 34, 255))
         draw = ImageDraw.Draw(img)
-        # 加漸層效果
         for y in range(height):
             shade = int(34 + (y / height) * 100)
             draw.line([(0, y), (width, y)], fill=(shade, 139, shade, 255))
     elif background == "starry":
-        img = Image.new("RGBA", (width, height), (10, 10, 40, 255))  # 深藍底
+        img = Image.new("RGBA", (width, height), (10, 10, 40, 255))
         draw = ImageDraw.Draw(img)
-        # 加隨機星星
         for _ in range(200):
             x, y = random.randint(0, width), random.randint(0, height)
             draw.ellipse((x, y, x+2, y+2), fill=(255, 255, 255, 255))
     elif background == "watercolor":
-        img = Image.new("RGBA", (width, height), (173, 216, 230, 255))  # 淺藍底
+        img = Image.new("RGBA", (width, height), (173, 216, 230, 255))
         draw = ImageDraw.Draw(img)
-        # 加柔和漸層
         for y in range(height):
             shade = int(173 + (y / height) * 50)
             draw.line([(0, y), (width, y)], fill=(shade, 200, 230, 255))
     elif background == "smoke":
-        img = Image.new("RGBA", (width, height), (200, 200, 200, 255))  # 灰白底
+        img = Image.new("RGBA", (width, height), (200, 200, 200, 255))
         draw = ImageDraw.Draw(img)
-        # 加煙霧漸層
         for y in range(height):
             shade = int(200 - (y / height) * 100)
             draw.line([(0, y), (width, y)], fill=(shade, shade, shade, 255))
@@ -87,6 +83,13 @@ def create_sticker(style="new_year", text="Happy Meow Year", font_name="default"
         font_large = ImageFont.load_default()
         font_small = ImageFont.load_default()
 
+    # 文字顏色
+    try:
+        color = ImageColor.getrgb(text_color)
+    except Exception as e:
+        print(f"⚠️ 無效文字顏色 '{text_color}'，錯誤: {e}")
+        color = (0, 0, 0)
+
     # 標題
     title = "Sunday Agent"
     title_w, title_h = draw.textbbox((0,0), title, font=font_small)[2:]
@@ -97,7 +100,7 @@ def create_sticker(style="new_year", text="Happy Meow Year", font_name="default"
     y = height // 2 - (len(lines) * 60)
     for line in lines:
         w, h = draw.textbbox((0,0), line, font=font_large)[2:]
-        draw.text(((width - w) / 2, y), line, fill=(0,0,0,255), font=font_large)
+        draw.text(((width - w) / 2, y), line, fill=color, font=font_large)
         y += h + 20
 
     # Footer
@@ -112,6 +115,7 @@ def create_sticker(style="new_year", text="Happy Meow Year", font_name="default"
     print(f"實際收到 text : '{text}'")
     print(f"使用字型: {font_name}")
     print(f"背景模式: {background}")
+    print(f"文字顏色: {text_color}")
 
 if __name__ == "__main__":
     print("=== DEBUG: sys.argv 內容 ===")
@@ -120,4 +124,5 @@ if __name__ == "__main__":
     text = sys.argv[2].strip() if len(sys.argv) > 2 and sys.argv[2].strip() else "Happy Meow Year"
     font_name = sys.argv[3].strip() if len(sys.argv) > 3 and sys.argv[3].strip() else "default"
     background = sys.argv[4].strip() if len(sys.argv) > 4 and sys.argv[4].strip() else "transparent"
-    create_sticker(style=style, text=text, font_name=font_name, background=background)
+    text_color = sys.argv[5].strip() if len(sys.argv) > 5 and sys.argv[5].strip() else "#000000"
+    create_sticker(style=style, text=text, font_name=font_name, background=background, text_color=text_color)
