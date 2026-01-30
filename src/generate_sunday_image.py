@@ -4,8 +4,8 @@ import time  # ← 新增這行
 from datetime import datetime
 
 # 你可以之後改用自己喜歡的模型
-MODEL_ID = "runwayml/stable-diffusion-v1-5"  # ← 換這個，超穩定
-API_URL = f"https://router.huggingface.co/v1/models/{MODEL_ID}"
+MODEL_ID = "runwayml/stable-diffusion-v1-5"
+API_URL = "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5"
 
 def generate_sunday_image(
     prompt: str,
