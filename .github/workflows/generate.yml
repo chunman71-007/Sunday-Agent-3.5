@@ -39,11 +39,10 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-    
-      - name: 安裝依賴（包括 Pillow 和 requests）
+          
+      - name: 安裝依賴
         run: |
-          python -m pip install --upgrade pip
-          pip install Pillow requests || echo "安裝失敗時請檢查 requirements"
+          pip install Pillow requests
 
       - name: （可選）生成 Sunday 卡通底圖
         if: ${{ inputs.use_sunday_image == 'true' }}
