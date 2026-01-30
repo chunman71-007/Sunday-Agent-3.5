@@ -1,5 +1,6 @@
 import os
 import requests
+import time  # ← 新增這行
 from datetime import datetime
 
 # 你可以之後改用自己喜歡的模型
@@ -19,7 +20,6 @@ def generate_sunday_image(
 
     headers = {"Authorization": f"Bearer {hf_token}"}
 
-    # 先用簡單 prompt，之後你可以再調整字眼
     full_prompt = (
         "cute cartoon cat named Sunday, orange and white fur, big eyes, "
         "kawaii style, clean vector flat illustration, transparent background, "
@@ -32,20 +32,21 @@ def generate_sunday_image(
     }
 
     print(f"🔹 呼叫 Hugging Face 模型: {MODEL_ID}")
+    resp = None
     for attempt in range(3):
-    resp = requests.post(API_URL, headers=headers, json=payload)
-    if resp.status_code == 200:
-        break
-    elif "model is currently loading" in resp.text:
-        print("模型載入中，重試...")
-        time.sleep(30)
-    else:
-        break
-    resp = requests.post(API_URL, headers=headers, json=payload)
-    if resp.status_code != 200:
-        raise RuntimeError(
-            f"Hugging Face API 失敗: {resp.status_code} {resp.text[:300]}"
-        )
+        resp = requests.post(API_URL, headers=headers, json=payload)
+        if resp.status_code == 200:
+            print("✅ API 呼叫成功")
+            break
+        elif "model is currently loading" in resp.text.lower():
+            print(f"模型載入中... 重試 {attempt+1}/3 (等30秒)")
+            time.sleep(30)
+        else:
+            print(f"API 錯誤 {resp.status_code}: {resp.text[:200]}")
+            break
+    
+    if resp is None or resp.status_code != 200:
+        raise RuntimeError(f"Hugging Face API 失敗: {resp.status_code if resp else '無回應'} {resp.text[:300] if resp else ''}")
 
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     filename = f"{filename_prefix}_{timestamp}.png"
@@ -58,7 +59,6 @@ def generate_sunday_image(
     return filepath
 
 if __name__ == "__main__":
-    # 允許從 command line 傳入簡單描述
     import sys
     extra_prompt = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "holiday sticker"
     generate_sunday_image(extra_prompt)
