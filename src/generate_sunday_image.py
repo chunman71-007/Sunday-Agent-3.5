@@ -5,7 +5,7 @@ from datetime import datetime
 
 # 你可以之後改用自己喜歡的模型
 MODEL_ID = "stabilityai/stable-diffusion-2-1"
-API_URL = f"https://api-inference.huggingface.co/models/{MODEL_ID}"
+API_URL = f"https://router.huggingface.co/v1/models/{MODEL_ID}"  # 新端點 2026
 
 def generate_sunday_image(
     prompt: str,
