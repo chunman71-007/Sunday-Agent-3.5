@@ -32,6 +32,15 @@ def generate_sunday_image(
     }
 
     print(f"🔹 呼叫 Hugging Face 模型: {MODEL_ID}")
+    for attempt in range(3):
+    resp = requests.post(API_URL, headers=headers, json=payload)
+    if resp.status_code == 200:
+        break
+    elif "model is currently loading" in resp.text:
+        print("模型載入中，重試...")
+        time.sleep(30)
+    else:
+        break
     resp = requests.post(API_URL, headers=headers, json=payload)
     if resp.status_code != 200:
         raise RuntimeError(
