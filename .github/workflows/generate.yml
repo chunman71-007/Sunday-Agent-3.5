@@ -1,92 +1,18 @@
-name: Generate Sunday Sticker
+name: Generate Sunday Sticker v3.0
 
 on:
   workflow_dispatch:
     inputs:
       style:
-        description: '貼紙樣式 (e.g. birthday, christmas)'
+        description: '貼紙樣式'
         required: true
         default: 'new_year'
         type: string
       text:
-        description: '貼紙文字 (e.g. Happy Purr-thday!)'
+        description: '貼紙文字'
         required: false
         default: 'Happy Meow Year'
         type: string
       font_name:
-        description: '字型名稱（不含副檔名，例如 starborn）'
-        required: false
-        default: 'default'
-        type: string
-      background:
-        description: '背景模式 (transparent, white, black, forest, starry, watercolor, smoke)'
-        required: false
-        default: 'transparent'
-        type: string
-      text_color:
-        description: '文字顏色 (hex 格式，例如 #FF0000)'
-        required: false
-        default: '#000000'
-        type: string
-      use_sunday_image:
-        description: '是否先生成 Sunday 卡通圖並作為貼紙底圖'
-        required: false
-        default: 'false'
-        type: string
-
-jobs:
-  generate:
-    runs-on: ubuntu-latest
-    steps:
-      # 1. 先拉程式碼
-      - name: 拉取最新程式碼
-        uses: actions/checkout@v4
-
-      # 2. 設定 Python
-      - name: 設定 Python 環境
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      # 3. 安裝依賴（合併版）
-      - name: 安裝依賴
-        run: |
-          python -m pip install --upgrade pip
-          pip install Pillow requests
-
-      # 4. 生成 Sunday 圖（可選）
-      - name: （可選）生成 Sunday 卡通底圖
-        if: ${{ inputs.use_sunday_image == 'true' }}
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          echo "=== 呼叫 Hugging Face 生成 Sunday 圖 ==="
-          python src/generate_sunday_image.py "for whatsapp sticker"
-
-      # 5. 原有貼紙生成
-      - name: 執行貼紙生成器
-        run: |
-          echo "=== Debug: inputs ==="
-          echo "style     : '${{ inputs.style }}'"
-          echo "text      : '${{ inputs.text }}'"
-          echo "font_name : '${{ inputs.font_name }}'"
-          echo "background: '${{ inputs.background }}'"
-          echo "text_color: '${{ inputs.text_color }}'"
-          echo "=== 執行 Python 腳本 ==="
-          python src/generate_sticker.py \
-            "${{ inputs.style || 'new_year' }}" \
-            "${{ inputs.text || 'Happy Meow Year' }}" \
-            "${{ inputs.font_name || 'default' }}" \
-            "${{ inputs.background || 'transparent' }}" \
-            "${{ inputs.text_color || '#000000' }}"
-
-      # 6. Commit（同原）
-      - name: Commit and push generated sticker
-        run: |
-          git config --global user.name 'GitHub Actions Bot'
-          git config --global user.email 'actions@github.com'
-          git add assets/generated/* assets/sunday_base/*
-          git commit -m "Auto-generate sticker: ${{ inputs.use_sunday_image == 'true' && 'with_sunday_image_' || '' }}${{ inputs.style || 'new_year' }}_${{ github.run_id }}" || echo "No changes to commit"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        description: '字型名稱'
+        required
